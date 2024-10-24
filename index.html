@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="tg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SINAMO_TAJ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+            color: white;
+            min-height: 100vh;
+        }
+
+        .header {
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        .header h1 {
+            color: #ffeb3b;
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .admin-btn {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: #ffeb3b;
+            color: black;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .admin-login {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .login-form {
+            background-color: #333;
+            padding: 2rem;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .login-form input {
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            border: none;
+            border-radius: 4px;
+        }
+
+        .admin-panel {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 1rem;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            display: none;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #ffeb3b;
+        }
+
+        .form-group input, 
+        .form-group textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #444;
+            background-color: rgba(255, 255, 255, 0.05);
+            color: white;
+            border-radius: 4px;
+        }
+
+        .submit-btn {
+            background-color: #ffeb3b;
+            color: black;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .movies-container {
+            padding: 2rem;
+        }
+
+        .movies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .movie-card {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(255, 235, 59, 0.2);
+        }
+
+        .movie-poster {
+            width: 100%;
+            height: 350px;
+            object-fit: cover;
+        }
+
+        .movie-info {
+            padding: 1.5rem;
+        }
+
+        .movie-title {
+            font-size: 1.4rem;
+            margin-bottom: 0.8rem;
+            color: #ffeb3b;
+        }
+
+        .movie-description {
+            color: #ddd;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .video-player {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .video-container {
+            width: 90%;
+            max-width: 1000px;
+            position: relative;
+        }
+
+        .video-container video {
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background-color: #ffeb3b;
+            color: black;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            z-index: 1001;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background-color: #fff;
+            transform: scale(1.05);
+        }
+
+        .no-movies {
+            text-align: center;
+            padding: 3rem;
+            color: #ccc;
+            font-size: 1.2rem;
+            grid-column: 1 / -1;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>SINAMO_TAJ</h1>
+        <button class="admin-btn" onclick="showAdminLogin()">Admin</button>
+    </header>
+
+    <!-- Admin Login Modal -->
+    <div class="admin-login" id="adminLogin">
+        <div class="login-form">
+            <input type="password" id="adminCode" placeholder="Рамзро дохил кунед">
+            <button class="submit-btn" onclick="checkAdminCode()">Дохил шудан</button>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div class="admin-panel" id="adminPanel">
+        <h2>Панели администратор</h2>
+        <form id="movieForm">
+            <div class="form-group">
+                <label>Номи филм:</label>
+                <input type="text" id="movieTitle" required>
+            </div>
+            <div class="form-group">
+                <label>Маълумот дар бораи филм:</label>
+                <textarea id="movieDescription" required rows="4"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Акси филм:</label>
+                <input type="file" id="moviePoster" accept="image/*" required>
+            </div>
+            <div class="form-group">
+                <label>Файли филм:</label>
+                <input type="file" id="movieFile" accept="video/*" required>
+            </div>
+            <button type="submit" class="submit-btn">Илова кардан</button>
+        </form>
+    </div>
+
+    <!-- Movies Container -->
+    <div class="movies-container">
+        <div class="movies-grid" id="moviesGrid">
+            <div class="no-movies" id="noMovies">
+                Дар айни ҳол ягон филм илова карда нашудааст.
+            </div>
+        </div>
+    </div>
+
+    <!-- Video Player -->
+    <div class="video-player" id="videoPlayer">
+        <button class="back-btn" onclick="closeVideo()">Баргашт ба меню</button>
+        <div class="video-container">
+            <video controls id="videoElement">
+                <source src="" type="video/mp4">
+            </video>
+        </div>
+    </div>
+
+    <script>
+        const adminCode = "iamsafitam";
+        const movies = [];
+
+        function showAdminLogin() {
+            document.getElementById('adminLogin').style.display = 'flex';
+        }
+
+        function checkAdminCode() {
+            const inputCode = document.getElementById('adminCode').value;
+            if (inputCode === adminCode) {
+                document.getElementById('adminLogin').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'block';
+            } else {
+                alert('Рамз нодуруст аст!');
+            }
+        }
+
+        function addMovie(title, description, posterUrl, videoUrl) {
+            const movie = { title, description, posterUrl, videoUrl };
+            movies.push(movie);
+            updateMoviesDisplay();
+        }
+
+        function updateMoviesDisplay() {
+            const moviesGrid = document.getElementById('moviesGrid');
+            const noMovies = document.getElementById('noMovies');
+            
+            // Clear current display
+            moviesGrid.innerHTML = '';
+            
+            if (movies.length === 0) {
+                moviesGrid.appendChild(noMovies);
+            } else {
+                movies.forEach((movie, index) => {
+                    const movieCard = document.createElement('div');
+                    movieCard.className = 'movie-card';
+                    movieCard.innerHTML = `
+                        <img src="${movie.posterUrl}" alt="${movie.title}" class="movie-poster">
+                        <div class="movie-info">
+                            <h3 class="movie-title">${movie.title}</h3>
+                            <p class="movie-description">${movie.description}</p>
+                        </div>
+                    `;
+                    movieCard.onclick = () => playVideo(movie.videoUrl);
+                    moviesGrid.appendChild(movieCard);
+                });
+            }
+        }
+
+        function playVideo(videoUrl) {
+            const videoPlayer = document.getElementById('videoPlayer');
+            const videoElement = document.getElementById('videoElement');
+            
+            videoElement.src = videoUrl;
+            videoPlayer.style.display = 'flex';
+            videoElement.play();
+        }
+
+        function closeVideo() {
+            const videoPlayer = document.getElementById('videoPlayer');
+            const videoElement = document.getElementById('videoElement');
+            
+            videoElement.pause();
+            videoPlayer.style.display = 'none';
+        }
+
+        // Handle form submission
+        document.getElementById('movieForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('movieTitle').value;
+            const description = document.getElementById('movieDescription').value;
+            const posterFile = document.getElementById('moviePoster').files[0];
+            const movieFile = document.getElementById('movieFile').files[0];
+
+            // Create URLs for files (in a real application, these would be uploaded to a server)
+            const posterUrl = posterFile ? URL.createObjectURL(posterFile) : '/api/placeholder/250/350';
+            const videoUrl = movieFile ? URL.createObjectURL(movieFile) : '#';
+
+            // Add the movie
+            addMovie(title, description, posterUrl, videoUrl);
+
+            // Reset form
+            this.reset();
+            alert('Филм бо муваффақият илова карда шуд!');
+        });
+    </script>
+</body>
+  </html>
